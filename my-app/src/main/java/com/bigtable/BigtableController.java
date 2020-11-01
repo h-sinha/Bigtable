@@ -7,6 +7,9 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -40,8 +43,18 @@ public class BigtableController {
 
         // [START bigtable_hw_write_rows]
         // Retrieve the table we just created so we can do some reads and writes
-//        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-
+        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+        for(var row:csv.recordList)
+        {
+          Put put = new Put(Bytes.toBytes(row.getUserID()));
+          put.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(row.getItemID()), Bytes.toBytes(row.getViewCount()));
+          table.put(put);
+        }
+        String rowKey = "1";
+        Result getResult = table.get(new Get(Bytes.toBytes(rowKey)));
+        String greeting = Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(1)));
+        System.out.println("Get a single greeting by row key");
+        System.out.printf("\t%s = %s\n", rowKey, greeting);
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
           admin.disableTable(TableName.valueOf(TABLE_NAME));
