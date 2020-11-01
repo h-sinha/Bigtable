@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
+import org.apache.hadoop.hbase.client.coprocessor.LongColumnInterpreter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -51,8 +52,8 @@ public class BigtableController {
     return ans;
   }
 
-  public int view_count(int itemId) {
-    int ans = 0;
+  public Long view_count(int itemId) {
+    Long ans = 0L;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
@@ -61,13 +62,13 @@ public class BigtableController {
       conf.setInt("hbase.client.retries.number", 1);
       conf.setInt("ipc.client.connect.max.retries", 1);
       AggregationClient aggregationClient = new AggregationClient(conf);
-      ans = aggregationClient.sum(table, null, scan);
+      ans = aggregationClient.sum(table, new LongColumnInterpreter(), scan);
 
-//      ResultScanner scanner = table.getScanner(scan);
-//      for (Result result = scanner.next(); result != null; result = scanner.next()) {
-//        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-//
-//      }
+      //      ResultScanner scanner = table.getScanner(scan);
+      //      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+      //        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+      //
+      //      }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
