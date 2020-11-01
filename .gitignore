@@ -25,3 +25,5 @@ hs_err_pid*
 my-app/.idea/*
 .gitignore
  my-app/my-app.iml
+
+target/*
