@@ -25,6 +25,11 @@ public class BigtableController {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Admin admin = connection.getAdmin();
       try {
+        // delete table if it already exists
+        if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
+          admin.disableTable(TableName.valueOf(TABLE_NAME));
+          admin.deleteTable(TableName.valueOf(TABLE_NAME));
+        }
         // [START bigtable_hw_create_table]
         // Create a table with a single column family
         HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(TABLE_NAME));
