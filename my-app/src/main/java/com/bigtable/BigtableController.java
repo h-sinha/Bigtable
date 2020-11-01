@@ -64,9 +64,9 @@ public class BigtableController {
           table.put(putList);
         }
         Result getResult = table.get(new Get(Bytes.toBytes(1)));
-        String greeting = Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(1)));
-        System.out.println("Get a single greeting by row key");
-        System.out.printf("\t%s = %s\n", 1, greeting);
+        Integer view = Bytes.toInt(getResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(1)));
+        System.out.println("Get viewcount by UserId and itemId");
+        System.out.printf("\t%s = %s\n", 1, view);
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
           admin.disableTable(TableName.valueOf(TABLE_NAME));
