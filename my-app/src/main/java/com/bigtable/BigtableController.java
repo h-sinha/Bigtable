@@ -28,7 +28,11 @@ public class BigtableController {
     scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
     ResultScanner scanner = table.getScanner(scan);
     int ans = 0;
-    for (Result result = scanner.next(); result != null; result = scanner.next())ans += Bytes.toInt(result.getValue());
+    for (Result result = scanner.next(); result != null; result = scanner.next())
+    {
+      System.out.println(result);
+//      ans += Bytes.toInt(result.getValue());
+    }
     return ans;
   }
   public BigtableController(String path) throws IOException {
