@@ -21,19 +21,24 @@ public class BigtableController {
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
-  public int interested(int itemId) throws IOException {
-    Connection connection = BigtableConfiguration.connect(projectId, instanceId)
-    Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-    Scan scan = new Scan();
-    scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-    ResultScanner scanner = table.getScanner(scan);
+
+  public int interested(int itemId) {
     int ans = 0;
-    for (Result result = scanner.next(); result != null; result = scanner.next())
-    {
-      ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Scan scan = new Scan();
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      ResultScanner scanner = table.getScanner(scan);
+      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
     }
     return ans;
   }
+
   public BigtableController(String path) throws IOException {
     var csv = new CSVHandler();
     csv.readCSV(path);
@@ -84,9 +89,6 @@ public class BigtableController {
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
-//      System.exit(1);
     }
-
-//    System.exit(0);
   }
 }
