@@ -29,8 +29,8 @@
     <!-- https://mvnrepository.com/artifact/com.google.cloud.bigtable/bigtable-hbase -->
     <dependency>
       <groupId>com.google.cloud.bigtable</groupId>
-      <artifactId>bigtable-hbase</artifactId>
-      <version>1.16.0</version>
+      <artifactId>bigtable-hbase-1.x</artifactId>
+      <version>1.9.0</version>
     </dependency>
 
   </dependencies>
