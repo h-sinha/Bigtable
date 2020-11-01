@@ -4,6 +4,8 @@ import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -14,6 +16,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -40,10 +43,6 @@ public class BigtableController {
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-        if(Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)))==0)
-        {
-          System.out.println("--------------------------------err----------------------------------");
-        }
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -58,14 +57,22 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      ResultScanner scanner = table.getScanner(scan);
-      for (Result result = scanner.next(); result != null; result = scanner.next()) {
-        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+      Configuration conf = HBaseConfiguration.create();
+      conf.setInt("hbase.client.retries.number", 1);
+      conf.setInt("ipc.client.connect.max.retries", 1);
+      AggregationClient aggregationClient = new AggregationClient(conf);
+      ans = aggregationClient.sum(table, null, scan);
 
-      }
+//      ResultScanner scanner = table.getScanner(scan);
+//      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+//        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+//
+//      }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
     }
     return ans;
   }
