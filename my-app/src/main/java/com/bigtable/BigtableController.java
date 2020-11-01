@@ -18,20 +18,19 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class BigtableController {
   String projectId, instanceId;
-  Connection connection;
-  Table table;
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
   public int interested(int itemId) throws IOException {
+    Connection connection = BigtableConfiguration.connect(projectId, instanceId)
+    Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
     Scan scan = new Scan();
     scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
     ResultScanner scanner = table.getScanner(scan);
     int ans = 0;
     for (Result result = scanner.next(); result != null; result = scanner.next())
     {
-      System.out.println(result);
-//      ans += Bytes.toInt(result.getValue());
+      ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
     }
     return ans;
   }
@@ -42,7 +41,6 @@ public class BigtableController {
     this.projectId = "ds-hw-5";
     this.instanceId = "in1234";
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
-      this.connection = connection;
       Admin admin = connection.getAdmin();
       try {
         // delete table if it already exists
@@ -60,7 +58,6 @@ public class BigtableController {
         // [START bigtable_hw_write_rows]
         // Retrieve the table we just created so we can do some reads and writes
         Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-        this.table = table;
         List<Put> putList = new ArrayList<Put>();
         for (var row : csv.recordList) {
           Put put = new Put(Bytes.toBytes(row.getUserID()));
@@ -87,9 +84,9 @@ public class BigtableController {
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
-      System.exit(1);
+//      System.exit(1);
     }
 
-    System.exit(0);
+//    System.exit(0);
   }
 }
