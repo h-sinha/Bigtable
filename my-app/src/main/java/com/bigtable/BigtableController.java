@@ -9,18 +9,28 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class BigtableController {
   String projectId, instanceId;
+  Connection connection;
+  Table table;
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
-
+  public int interested(int itemId) throws IOException {
+    Scan scan = new Scan();
+    scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+    ResultScanner scanner = table.getScanner(scan);
+    int ans = 0;
+    for (Result result = scanner.next(); result != null; result = scanner.next())ans += Bytes.toInt(result.getValue());
+    return ans;
+  }
   public BigtableController(String path) throws IOException {
     var csv = new CSVHandler();
     csv.readCSV(path);
@@ -28,6 +38,7 @@ public class BigtableController {
     this.projectId = "ds-hw-5";
     this.instanceId = "in1234";
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      this.connection = connection;
       Admin admin = connection.getAdmin();
       try {
         // delete table if it already exists
@@ -42,13 +53,12 @@ public class BigtableController {
 
         admin.createTable(descriptor);
         // [END bigtable_hw_create_table]
-
         // [START bigtable_hw_write_rows]
         // Retrieve the table we just created so we can do some reads and writes
         Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+        this.table = table;
         List<Put> putList = new ArrayList<Put>();
         for (var row : csv.recordList) {
-          System.out.println("Data added to table - " + row);
           Put put = new Put(Bytes.toBytes(row.getUserID()));
           put.addColumn(
               COLUMN_FAMILY_NAME,
@@ -63,10 +73,6 @@ public class BigtableController {
         if (putList.size() > 0) {
           table.put(putList);
         }
-        Result getResult = table.get(new Get(Bytes.toBytes(1)));
-        Integer view = Bytes.toInt(getResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(1)));
-        System.out.println("Get viewcount by UserId and itemId");
-        System.out.printf("\t%s = %s\n", 1, view);
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
           admin.disableTable(TableName.valueOf(TABLE_NAME));
