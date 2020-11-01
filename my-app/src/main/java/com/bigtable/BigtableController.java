@@ -48,8 +48,7 @@ public class BigtableController {
         Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
         List<Put> putList = new ArrayList<Put>();
         for (var row : csv.recordList) {
-          System.out.print("Data added to table - ");
-          System.out.print(row);
+          System.out.println("Data added to table - " + row);
           Put put = new Put(Bytes.toBytes(row.getUserID()));
           put.addColumn(
               COLUMN_FAMILY_NAME,
@@ -64,11 +63,10 @@ public class BigtableController {
         if (putList.size() > 0) {
           table.put(putList);
         }
-        String rowKey = "1";
-        Result getResult = table.get(new Get(Bytes.toBytes(rowKey)));
+        Result getResult = table.get(new Get(Bytes.toBytes(1)));
         String greeting = Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(1)));
         System.out.println("Get a single greeting by row key");
-        System.out.printf("\t%s = %s\n", rowKey, greeting);
+        System.out.printf("\t%s = %s\n", 1, greeting);
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
           admin.disableTable(TableName.valueOf(TABLE_NAME));
