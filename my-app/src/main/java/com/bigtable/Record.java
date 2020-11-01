@@ -33,6 +33,6 @@ public class Record {
 
   @Override
   public String toString() {
-    return "\nUserID=" + getUserID() + "::ItemID=" + getItemID() + "::ViewCount=" + getViewCount();
+    return "UserID=" + getUserID() + "::ItemID=" + getItemID() + "::ViewCount=" + getViewCount();
   }
 }

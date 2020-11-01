@@ -39,6 +39,5 @@ public class CSVHandler {
 
     // close reader
     reader.close();
-    System.out.println(this.recordList);
   }
 }
