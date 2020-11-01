@@ -40,6 +40,10 @@ public class BigtableController {
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+        if(Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)))==0)
+        {
+          System.out.println("--------------------------------err----------------------------------");
+        }
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -57,6 +61,7 @@ public class BigtableController {
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
