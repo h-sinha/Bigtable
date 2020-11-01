@@ -14,6 +14,11 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class BigtableController {
@@ -23,6 +28,27 @@ public class BigtableController {
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
   public int interested(int itemId) {
+    int ans = 0;
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Scan scan = new Scan();
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      SingleColumnValueFilter filter =
+          new SingleColumnValueFilter(
+              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      scan.setFilter(filter);
+      ResultScanner scanner = table.getScanner(scan);
+      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return ans;
+  }
+
+  public int view_count(int itemId) {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
