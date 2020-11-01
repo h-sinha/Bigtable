@@ -12,7 +12,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class BigtableController {
   String projectId, instanceId;
-  private static final byte[] TABLE_NAME = Bytes.toBytes("User Preference");
+  private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
@@ -35,7 +35,7 @@ public class BigtableController {
 
         // [START bigtable_hw_write_rows]
         // Retrieve the table we just created so we can do some reads and writes
-        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+//        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
 
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
