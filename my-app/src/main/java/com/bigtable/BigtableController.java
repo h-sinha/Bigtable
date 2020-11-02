@@ -66,20 +66,13 @@ public class BigtableController {
   }
   public int popular(){
     int ans = 0, maxView = -1;
-    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       for(var i :this.columnId){
         int curView = view_count(i);
-        System.out.println("Item = " +i);
-        System.out.println("view = " +curView);
         if(curView>maxView){
           maxView = curView;
           ans = i;
         }
       }
-    } catch (IOException e) {
-      System.err.println("Exception while running program: " + e.getMessage());
-      e.printStackTrace();
-    }
     return ans;
   }
   public BigtableController(String path) throws IOException {
