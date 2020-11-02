@@ -1,10 +1,13 @@
 package com.bigtable;
 
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -75,13 +78,13 @@ public class BigtableController {
       }
     return ans;
   }
-  public BigtableController(String path) throws IOException {
-    var csv = new CSVHandler();
-    csv.readCSV(path);
+  public BigtableController() {
     // change later based on submission format
     this.projectId = "ds-hw-5";
     this.instanceId = "in1234";
-    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+  }
+  public void readCSV(String filepath) throws IOException {
+    try (Connection connection = BigtableConfiguration.connect(this.projectId, this.instanceId)) {
       Admin admin = connection.getAdmin();
       try {
         // delete table if it already exists
@@ -101,14 +104,34 @@ public class BigtableController {
         Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
         List<Put> putList = new ArrayList<Put>();
         this.columnId = new HashSet<Integer>();
-        for (var row : csv.recordList) {
-          Put put = new Put(Bytes.toBytes(row.getUserID()));
+
+        // csv read
+        BufferedReader reader = new BufferedReader(new FileReader("data.csv"));
+        String line = null;
+        Scanner scanner = null;
+        int index = 0;
+        // read headers
+        line = reader.readLine();
+        while ((line = reader.readLine()) != null) {
+          Record rec = new Record();
+          scanner = new Scanner(line);
+          scanner.useDelimiter(",");
+          while (scanner.hasNext()) {
+            String data = scanner.next();
+            if (index == 0) rec.setUserID(Integer.parseInt(data));
+            else if (index == 1) rec.setItemID(Integer.parseInt(data));
+            else if (index == 2) rec.setViewCount(Integer.parseInt(data));
+            else System.out.println("invalid data::" + data);
+            index++;
+          }
+          index = 0;
+          Put put = new Put(Bytes.toBytes(rec.getUserID()));
           put.addColumn(
               COLUMN_FAMILY_NAME,
-              Bytes.toBytes(row.getItemID()),
-              Bytes.toBytes(row.getViewCount()));
+              Bytes.toBytes(rec.getItemID()),
+              Bytes.toBytes(rec.getViewCount()));
+          this.columnId.add(rec.getItemID());
           putList.add(put);
-          this.columnId.add(row.getItemID());
           if (putList.size() >= 1e6) {
             table.put(putList);
             putList.clear();
@@ -117,6 +140,8 @@ public class BigtableController {
         if (putList.size() > 0) {
           table.put(putList);
         }
+        reader.close();
+
       } catch (IOException e) {
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
           admin.disableTable(TableName.valueOf(TABLE_NAME));
@@ -128,5 +153,8 @@ public class BigtableController {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
     }
+
+
+    // close reader
   }
 }
