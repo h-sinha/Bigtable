@@ -3,7 +3,9 @@ package com.bigtable;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -14,15 +16,13 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class BigtableController {
   String projectId, instanceId;
+  Set<Integer> columnId;
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
@@ -39,7 +39,7 @@ public class BigtableController {
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
-        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+        ans++;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -55,9 +55,10 @@ public class BigtableController {
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       ResultScanner scanner = table.getScanner(scan);
+      this.columnId = new HashSet<Integer>();
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-
+        this.columnId.add(itemId);
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -65,7 +66,22 @@ public class BigtableController {
     }
     return ans;
   }
-
+  public int popular(){
+    int ans = 0, maxView = -1;
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      for(var i :this.columnId){
+        int curView = view_count(i);
+        if(curView>maxView){
+          maxView = curView;
+          ans = i;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return ans;
+  }
   public BigtableController(String path) throws IOException {
     var csv = new CSVHandler();
     csv.readCSV(path);
