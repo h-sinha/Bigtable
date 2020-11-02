@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -21,9 +19,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
-import org.apache.hadoop.hbase.client.coprocessor.LongColumnInterpreter;
-import org.apache.hadoop.hbase.coprocessor.ColumnInterpreter;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -59,31 +54,16 @@ public class BigtableController {
   public int view_count(int itemId) {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
-      Configuration config = HBaseConfiguration.create();
-      AggregationClient aggregationClient = new AggregationClient(config);
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-//      Scan scan = new Scan();
-//      scan.addColumn(Bytes.toBytes("drs"), Bytes.toBytes("count"));
-
-//      ColumnInterpreter<Long, Long> ci = new LongColumnInterpreter();
-
-      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-      Long sum = aggregationClient.sum(table, new LongColumnInterpreter() , scan);
-      System.out.println(sum);
-        ans = sum.intValue();
-//      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-//      Scan scan = new Scan();
-//      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-//      ResultScanner scanner = table.getScanner(scan);
-//      for (Result result = scanner.next(); result != null; result = scanner.next()) {
-//        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-//      }
+      ResultScanner scanner = table.getScanner(scan);
+      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+      }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
-    } catch (Throwable throwable) {
-      throwable.printStackTrace();
     }
     return ans;
   }
