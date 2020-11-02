@@ -55,10 +55,8 @@ public class BigtableController {
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       ResultScanner scanner = table.getScanner(scan);
-      this.columnId = new HashSet<Integer>();
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-        this.columnId.add(itemId);
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -71,6 +69,8 @@ public class BigtableController {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       for(var i :this.columnId){
         int curView = view_count(i);
+        System.out.println("Item = " +i);
+        System.out.println("view = " +curView);
         if(curView>maxView){
           maxView = curView;
           ans = i;
@@ -107,6 +107,7 @@ public class BigtableController {
         // Retrieve the table we just created so we can do some reads and writes
         Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
         List<Put> putList = new ArrayList<Put>();
+        this.columnId = new HashSet<Integer>();
         for (var row : csv.recordList) {
           Put put = new Put(Bytes.toBytes(row.getUserID()));
           put.addColumn(
@@ -114,6 +115,7 @@ public class BigtableController {
               Bytes.toBytes(row.getItemID()),
               Bytes.toBytes(row.getViewCount()));
           putList.add(put);
+          this.columnId.add(row.getItemID());
           if (putList.size() >= 1e6) {
             table.put(putList);
             putList.clear();
