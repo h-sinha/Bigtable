@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -25,7 +26,6 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Pair;
 
 public class BigtableController {
   String projectId, instanceId;
@@ -33,6 +33,23 @@ public class BigtableController {
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
+
+  class PairComparator implements Comparator<Pair> {
+    @Override
+    public int compare(Pair pair, Pair t1) {
+      return pair.v1 - pair.v2;
+    }
+  }
+
+  class Pair {
+    int v1, v2;
+
+    public Pair(int v1, int v2) {
+
+      this.v1 = v1;
+      this.v2 = v2;
+    }
+  }
 
   public int[] top(int userID, int K) {
     int[] ans = new int[K];
@@ -46,20 +63,20 @@ public class BigtableController {
             "No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair<Integer, Integer>> maxHeap = new PriorityQueue<>();
+      PriorityQueue<Pair> maxHeap = new PriorityQueue<>();
       int itemId, viewCount;
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
         viewCount = Bytes.toInt(cell.getValueArray());
-        maxHeap.add(new Pair<>(viewCount, itemId));
+        maxHeap.add(new Pair(viewCount, itemId));
         if (maxHeap.size() > K) {
           maxHeap.poll();
         }
       }
       int idx = 0;
-      Pair<Integer, Integer> pair;
+      Pair pair;
       while ((pair = maxHeap.poll()) != null) {
-        ans[idx] = pair.getFirst();
+        ans[idx] = pair.v2;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -194,7 +211,5 @@ public class BigtableController {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
     }
-
-    // close reader
   }
 }
