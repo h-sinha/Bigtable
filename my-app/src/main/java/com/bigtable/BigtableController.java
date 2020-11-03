@@ -50,10 +50,12 @@ public class BigtableController {
 
   public void top(int userID, int K) {
     int rowKey = userID;
+    byte[] ITEM_COLUMN_NAME = Bytes.toBytes("ItemID");
+    byte[] COUNT_COLUMN_NAME = Bytes.toBytes("Count");
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
-          .addColumn(COLUMN_FAMILY_NAME, "ItemID").addColumn(COLUMN_FAMILY_NAME, "Count"));
+          .addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME).addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME));
       System.out.println(getResult);
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
