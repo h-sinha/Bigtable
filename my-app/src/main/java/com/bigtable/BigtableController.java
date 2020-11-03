@@ -170,25 +170,22 @@ public class BigtableController {
         int index = 0;
         // read headers
         line = reader.readLine();
+        int itemId = 0, viewCount = 0, userId = 0;
         while ((line = reader.readLine()) != null) {
-          Record rec = new Record();
           scanner = new Scanner(line);
           scanner.useDelimiter(",");
           while (scanner.hasNext()) {
             String data = scanner.next();
-            if (index == 0) rec.setUserID(Integer.parseInt(data));
-            else if (index == 1) rec.setItemID(Integer.parseInt(data));
-            else if (index == 2) rec.setViewCount(Integer.parseInt(data));
+            if (index == 0) userId = Integer.parseInt(data);
+            else if (index == 1) itemId = Integer.parseInt(data);
+            else if (index == 2) viewCount = Integer.parseInt(data);
             else System.out.println("invalid data::" + data);
             index++;
           }
           index = 0;
-          Put put = new Put(Bytes.toBytes(rec.getUserID()));
-          put.addColumn(
-              COLUMN_FAMILY_NAME,
-              Bytes.toBytes(rec.getItemID()),
-              Bytes.toBytes(rec.getViewCount()));
-          this.columnId.add(rec.getItemID());
+          Put put = new Put(Bytes.toBytes(userId));
+          put.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), Bytes.toBytes(viewCount));
+          this.columnId.add(itemId);
           putList.add(put);
           if (putList.size() >= 1e6) {
             table.put(putList);
