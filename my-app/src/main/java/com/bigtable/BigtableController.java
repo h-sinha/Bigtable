@@ -29,6 +29,9 @@ public class BigtableController {
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
+  byte[] ITEM_COLUMN_NAME = Bytes.toBytes("ItemID");
+  byte[] COUNT_COLUMN_NAME = Bytes.toBytes("Count");
+
   public int interested(int itemId) {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
@@ -51,8 +54,6 @@ public class BigtableController {
 
   public void top(int userID, int K) {
     int rowKey = userID;
-    byte[] ITEM_COLUMN_NAME = Bytes.toBytes("ItemID");
-    byte[] COUNT_COLUMN_NAME = Bytes.toBytes("Count");
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
@@ -118,7 +119,8 @@ public class BigtableController {
         List<Put> putList = new ArrayList<Put>();
         for (var row : csv.recordList) {
           Put put = new Put(Bytes.toBytes(row.getUserID()));
-          put.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(row.getItemID()), Bytes.toBytes(row.getViewCount()));
+          put.addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME, Bytes.toBytes(row.getItemID()));
+          put.addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME, Bytes.toBytes(row.getViewCount()));
           putList.add(put);
           if (putList.size() >= 1e6) {
             table.put(putList);
