@@ -10,7 +10,10 @@ public class App {
     System.out.println("Viewcount of item 1 = " + inst.view_count(1));
     System.out.println("Number of users interested in item 1 = " + inst.interested(1));
     System.out.println("Most popular item in DB = " + inst.popular());
-    System.out.println("Top K iterms for userId:1 = " + inst.top(1, 2));
+    System.out.println("Top K iterms for userId:1 = ");
+    var res = inst.top(1, 2);
+    for(var x:res)System.out.print(x + " ");
+    System.out.println("");
     System.exit(0);
   }
 }

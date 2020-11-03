@@ -58,7 +58,7 @@ public class BigtableController {
       }
       PriorityQueue<Pair> maxHeap =
           new PriorityQueue<Pair>(
-              0,
+              K,
               new Comparator<Pair>() {
                 public int compare(Pair n1, Pair n2) {
                   return n1.v1 - n2.v1;
