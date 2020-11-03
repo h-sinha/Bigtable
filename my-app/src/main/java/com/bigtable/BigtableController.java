@@ -34,13 +34,6 @@ public class BigtableController {
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
-  class PairComparator implements Comparator<Pair> {
-    @Override
-    public int compare(Pair pair, Pair t1) {
-      return pair.v1 - pair.v2;
-    }
-  }
-
   class Pair {
     int v1, v2;
 
@@ -63,7 +56,14 @@ public class BigtableController {
             "No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> maxHeap = new PriorityQueue<>();
+      PriorityQueue<Pair> maxHeap =
+          new PriorityQueue<Pair>(
+              0,
+              new Comparator<Pair>() {
+                public int compare(Pair n1, Pair n2) {
+                  return n1.v1 - n2.v1;
+                }
+              });
       int itemId, viewCount;
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
