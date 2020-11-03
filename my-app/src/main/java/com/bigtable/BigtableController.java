@@ -56,7 +56,12 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
           .addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME).addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME));
-      System.out.println(getResult);
+      Cell[] raw = getResult.rawCells();
+      for (int i = 0; i < raw.length / 2; i++) {
+        System.out.print(Bytes.toString(raw[i].getValueArray()));
+        System.out.print(",");
+        System.out.println(Bytes.toString(raw[i + raw.length / 2].getValueArray()));
+      }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
