@@ -43,10 +43,8 @@ public class BigtableController {
             "No data was returned. If you recently ran the import job, try again in a minute.");
         return;
       }
-      for (int i = 0; i < raw.length / 2; i++) {
-        System.out.print(Bytes.toInt(raw[i].getValueArray()));
-        System.out.print(",");
-        System.out.println(Bytes.toInt(raw[i + raw.length / 2].getValueArray()));
+      for (int i = 0; i < raw.length; i++) {
+        System.out.println(Bytes.toInt(raw[i].getValueArray()));
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
