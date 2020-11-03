@@ -61,9 +61,10 @@ public class BigtableController {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
-      scan.addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME);
-      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME,
-          CompareOp.EQUAL, Bytes.toBytes(itemId));
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      SingleColumnValueFilter filter =
+          new SingleColumnValueFilter(
+              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
@@ -76,40 +77,12 @@ public class BigtableController {
     return ans;
   }
 
-  public void top(int userID, int K) {
-    int rowKey = userID;
-    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
-      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-      Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
-          .addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME).addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME));
-      System.out.println(Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME)));
-      System.out.println(Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME)));
-      Cell[] raw = getResult.rawCells();
-      if (raw == null) {
-        System.out.println("No data was returned. If you recently ran the import job, try again in a minute.");
-        return;
-      }
-      for (int i = 0; i < raw.length; i++) {
-        System.out.print(Bytes.toString(raw[i].getValueArray()));
-        System.out.print(",");
-        System.out.println(Bytes.toString(raw[i + raw.length / 2].getValueArray()));
-      }
-    } catch (IOException e) {
-      System.err.println("Exception while running program: " + e.getMessage());
-      e.printStackTrace();
-    }
-  }
-
   public int view_count(int itemId) {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
-      scan.addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME);
-      scan.addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME);
-      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME,
-          CompareOp.EQUAL, Bytes.toBytes(itemId));
-      scan.setFilter(filter);
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
