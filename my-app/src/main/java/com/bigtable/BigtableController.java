@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.Set;
 import org.apache.hadoop.hbase.Cell;
@@ -26,6 +27,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.Pair;
 
 public class BigtableController {
   String projectId, instanceId;
@@ -34,7 +36,7 @@ public class BigtableController {
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
-  public void top(int userID, int K) {
+  public int[] top(int userID, int K) {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult =
@@ -43,12 +45,22 @@ public class BigtableController {
       if (raw == null) {
         System.out.println(
             "No data was returned. If you recently ran the import job, try again in a minute.");
-        return;
+        return new int[0];
       }
+      PriorityQueue<Pair> maxHeap = new PriorityQueue<>();
       for (int i = 0; i < raw.length; i++) {
-        System.out.print(Bytes.toInt(raw[i].getQualifierArray()));
-        System.out.print(",");
-        System.out.println(Bytes.toInt(raw[i].getValueArray()));
+        int itemId = Bytes.toInt(raw[i].getQualifierArray();
+        int viewCount = Bytes.toInt(raw[i].getValueArray());
+          maxHeap.add(new Pair(viewCount, itemId));
+          if (maxHeap.size() > K) {
+            maxHeap.poll();
+          }
+      }
+      int []ans = new int[K];
+      int idx = 0;
+      Pair pair;
+      while((pair = (Pair) maxHeap.poll()) != null) {
+        ans[idx] = (int) pair.getFirst();
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
