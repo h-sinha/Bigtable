@@ -13,13 +13,11 @@ import java.util.Set;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -37,6 +35,7 @@ public class BigtableController {
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
 
   public int[] top(int userID, int K) {
+    int[] ans = new int[K];
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult =
@@ -47,25 +46,26 @@ public class BigtableController {
             "No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> maxHeap = new PriorityQueue<>();
-      for (int i = 0; i < raw.length; i++) {
-        int itemId = Bytes.toInt(raw[i].getQualifierArray();
-        int viewCount = Bytes.toInt(raw[i].getValueArray());
-          maxHeap.add(new Pair(viewCount, itemId));
-          if (maxHeap.size() > K) {
-            maxHeap.poll();
-          }
+      PriorityQueue<Pair<Integer, Integer>> maxHeap = new PriorityQueue<>();
+      int itemId, viewCount;
+      for (Cell cell : raw) {
+        itemId = Bytes.toInt(cell.getQualifierArray());
+        viewCount = Bytes.toInt(cell.getValueArray());
+        maxHeap.add(new Pair<>(viewCount, itemId));
+        if (maxHeap.size() > K) {
+          maxHeap.poll();
+        }
       }
-      int []ans = new int[K];
       int idx = 0;
-      Pair pair;
-      while((pair = (Pair) maxHeap.poll()) != null) {
-        ans[idx] = (int) pair.getFirst();
+      Pair<Integer, Integer> pair;
+      while ((pair = maxHeap.poll()) != null) {
+        ans[idx] = pair.getFirst();
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
     }
+    return ans;
   }
 
   public int interested(int itemId) {
