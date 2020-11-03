@@ -44,6 +44,8 @@ public class BigtableController {
         return;
       }
       for (int i = 0; i < raw.length; i++) {
+        System.out.print(Bytes.toInt(raw[i].getQualifierArray()));
+        System.out.println(",");
         System.out.println(Bytes.toInt(raw[i].getValueArray()));
       }
     } catch (IOException e) {
