@@ -47,18 +47,6 @@ public class BigtableController {
     return ans;
   }
 
-  public int popular() {
-    int ans = 0, maxView = -1;
-    for (var i : this.columnId) {
-      int curView = view_count(i);
-      if (curView > maxView) {
-        maxView = curView;
-        ans = i;
-      }
-    }
-    return ans;
-  }
-
   public void top(int userID, int K) {
     int rowKey = userID;
     Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
