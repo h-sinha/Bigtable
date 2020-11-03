@@ -37,13 +37,13 @@ public class BigtableController {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
-      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId),
-          CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      scan.addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME);
+      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME,
+          CompareOp.EQUAL, Bytes.toBytes(itemId));
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
-        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
+        ans += 1;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -79,11 +79,14 @@ public class BigtableController {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
-      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      scan.addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME);
+      scan.addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME);
+      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME,
+          CompareOp.EQUAL, Bytes.toBytes(itemId));
+      scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
-        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId)));
-
+        ans += Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME));
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
