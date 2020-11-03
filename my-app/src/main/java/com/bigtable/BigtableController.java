@@ -58,12 +58,14 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
           .addColumn(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME).addColumn(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME));
+      System.out.println(Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, ITEM_COLUMN_NAME)));
+      System.out.println(Bytes.toString(getResult.getValue(COLUMN_FAMILY_NAME, COUNT_COLUMN_NAME)));
       Cell[] raw = getResult.rawCells();
       if (raw == null) {
         System.out.println("No data was returned. If you recently ran the import job, try again in a minute.");
         return;
       }
-      for (int i = 0; i < raw.length / 2; i++) {
+      for (int i = 0; i < raw.length; i++) {
         System.out.print(Bytes.toString(raw[i].getValueArray()));
         System.out.print(",");
         System.out.println(Bytes.toString(raw[i + raw.length / 2].getValueArray()));
