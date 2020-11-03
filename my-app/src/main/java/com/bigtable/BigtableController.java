@@ -9,11 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -29,6 +31,28 @@ public class BigtableController {
   private static final byte[] TABLE_NAME = Bytes.toBytes("User-Preference");
 
   private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("Items");
+
+  public void top(int userID, int K) {
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Result getResult =
+          table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
+      Cell[] raw = getResult.rawCells();
+      if (raw == null) {
+        System.out.println(
+            "No data was returned. If you recently ran the import job, try again in a minute.");
+        return;
+      }
+      for (int i = 0; i < raw.length / 2; i++) {
+        System.out.print(Bytes.toString(raw[i].getValueArray()));
+        System.out.print(",");
+        System.out.println(Bytes.toString(raw[i + raw.length / 2].getValueArray()));
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
 
   public int interested(int itemId) {
     int ans = 0;
@@ -67,22 +91,25 @@ public class BigtableController {
     }
     return ans;
   }
-  public int popular(){
+
+  public int popular() {
     int ans = 0, maxView = -1;
-      for(var i :this.columnId){
-        int curView = view_count(i);
-        if(curView>maxView){
-          maxView = curView;
-          ans = i;
-        }
+    for (var i : this.columnId) {
+      int curView = view_count(i);
+      if (curView > maxView) {
+        maxView = curView;
+        ans = i;
       }
+    }
     return ans;
   }
+
   public BigtableController() {
     // change later based on submission format
     this.projectId = "ds-hw-5";
     this.instanceId = "in1234";
   }
+
   public void readCSV(String filepath) throws IOException {
     try (Connection connection = BigtableConfiguration.connect(this.projectId, this.instanceId)) {
       Admin admin = connection.getAdmin();
@@ -153,7 +180,6 @@ public class BigtableController {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
     }
-
 
     // close reader
   }
