@@ -33,9 +33,8 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      SingleColumnValueFilter filter =
-          new SingleColumnValueFilter(
-              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId),
+          CompareOp.NOT_EQUAL, Bytes.toBytes(0));
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
@@ -46,6 +45,25 @@ public class BigtableController {
       e.printStackTrace();
     }
     return ans;
+  }
+
+  public int popular() {
+    int ans = 0, maxView = -1;
+    for (var i : this.columnId) {
+      int curView = view_count(i);
+      if (curView > maxView) {
+        maxView = curView;
+        ans = i;
+      }
+    }
+    return ans;
+  }
+
+  public void top(int userID, int K) {
+    int rowKey = userID;
+    Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
+        .addColumn(COLUMN_FAMILY_NAME, "ItemID").addColumn(COLUMN_FAMILY_NAME, "Count"));
+    System.out.println(Result);
   }
 
   public int view_count(int itemId) {
@@ -93,10 +111,7 @@ public class BigtableController {
         List<Put> putList = new ArrayList<Put>();
         for (var row : csv.recordList) {
           Put put = new Put(Bytes.toBytes(row.getUserID()));
-          put.addColumn(
-              COLUMN_FAMILY_NAME,
-              Bytes.toBytes(row.getItemID()),
-              Bytes.toBytes(row.getViewCount()));
+          put.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(row.getItemID()), Bytes.toBytes(row.getViewCount()));
           putList.add(put);
           if (putList.size() >= 1e6) {
             table.put(putList);
