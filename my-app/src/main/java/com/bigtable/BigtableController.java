@@ -49,9 +49,15 @@ public class BigtableController {
 
   public void top(int userID, int K) {
     int rowKey = userID;
-    Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
-        .addColumn(COLUMN_FAMILY_NAME, "ItemID").addColumn(COLUMN_FAMILY_NAME, "Count"));
-    System.out.println(Result);
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Result getResult = table.get(new Get(Bytes.toBytes(rowKey)).setMaxVersions(Integer.MAX_VALUE)
+          .addColumn(COLUMN_FAMILY_NAME, "ItemID").addColumn(COLUMN_FAMILY_NAME, "Count"));
+      System.out.println(Result);
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
   }
 
   public int view_count(int itemId) {
