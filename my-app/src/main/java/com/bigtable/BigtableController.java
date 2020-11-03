@@ -44,9 +44,9 @@ public class BigtableController {
         return;
       }
       for (int i = 0; i < raw.length / 2; i++) {
-        System.out.print(Bytes.toString(raw[i].getValueArray()));
+        System.out.print(Bytes.toInt(raw[i].getValueArray()));
         System.out.print(",");
-        System.out.println(Bytes.toString(raw[i + raw.length / 2].getValueArray()));
+        System.out.println(Bytes.toInt(raw[i + raw.length / 2].getValueArray()));
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());

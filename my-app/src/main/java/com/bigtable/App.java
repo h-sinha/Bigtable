@@ -10,6 +10,7 @@ public class App {
     System.out.println("Viewcount of item 1 = " + inst.view_count(1));
     System.out.println("Number of users interested in item 1 = " + inst.interested(1));
     System.out.println("Most popular item in DB = " + inst.popular());
+    inst.top(1, 2);
     System.exit(0);
   }
 }
