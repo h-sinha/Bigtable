@@ -70,7 +70,7 @@ public class App {
           System.out.println("Most popular item in DB = " + inst.popular());
           break;
         case 7:
-          break;
+          System.exit(0);
         default:
           System.out.println("Enter correct command number.");
       }
