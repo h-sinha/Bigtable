@@ -15,7 +15,6 @@ public class App {
     System.out.print("Enter instance ID for bigtable = ");
     String iid = sc.nextLine();
     var inst = new BigtableController(pid, iid);
-    System.out.println(pid + iid);
     int cmd, userId, itemId, K;
     String path;
     while (true) {
@@ -29,7 +28,6 @@ public class App {
           Scanner sc1 = new Scanner(System.in);
           path = sc1.nextLine();
           inst.readCSV(path);
-          System.out.println(path);
           break;
         case 2:
           System.out.print("Enter user ID = ");
@@ -39,7 +37,7 @@ public class App {
           Scanner sc3 = new Scanner(System.in);
           K = sc3.nextInt();
           var res = inst.top(userId, K);
-          System.out.format("Top K items for userId:%d - \n", userId);
+          System.out.format("Top K items for userId:%d - ", userId);
           for (var x : res) System.out.print(x + " ");
           System.out.println("");
           break;
@@ -57,7 +55,7 @@ public class App {
           System.out.print("Enter K = ");
           Scanner sc6 = new Scanner(System.in);
           K = sc6.nextInt();
-          System.out.format("Top interested items for itemId:%d - \n", itemId);
+          System.out.format("Top interested items for itemId:%d - ", itemId);
           var res2 = inst.top_interested(itemId, K);
           for (var x : res2) System.out.print(x + " ");
           System.out.println("");

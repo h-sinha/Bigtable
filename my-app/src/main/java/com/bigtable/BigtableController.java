@@ -193,7 +193,6 @@ public class BigtableController {
       try {
         // delete table if it already exists
         if (admin.tableExists(TableName.valueOf(TABLE_NAME))) {
-          System.out.println("table hai");
           admin.disableTable(TableName.valueOf(TABLE_NAME));
           admin.deleteTable(TableName.valueOf(TABLE_NAME));
         }
@@ -201,10 +200,8 @@ public class BigtableController {
         // Create a table with a single column family
         HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(TABLE_NAME));
         descriptor.addFamily(new HColumnDescriptor(COLUMN_FAMILY_NAME));
-        System.out.println("descriptor");
 
         admin.createTable(descriptor);
-        System.out.println("table created");
         // [END bigtable_hw_create_table]
         // [START bigtable_hw_write_rows]
         // Retrieve the table we just created so we can do some reads and writes
@@ -216,7 +213,6 @@ public class BigtableController {
         BufferedReader reader = new BufferedReader(new FileReader("data.csv"));
         String line = null;
         Scanner scanner = null;
-        System.out.println("csv read");
         int index = 0;
         // read headers
         line = reader.readLine();
