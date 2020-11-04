@@ -10,9 +10,9 @@ public class App {
   public static void main(String[] args) throws IOException {
     Logger.getRootLogger().setLevel(Level.OFF);
     Scanner sc = new Scanner(System.in); // Create a Scanner object
-    System.out.println("Enter project ID for bigtable");
+    System.out.print("Enter project ID for bigtable = ");
     String pid = sc.nextLine();
-    System.out.println("Enter instance ID for bigtable");
+    System.out.print("Enter instance ID for bigtable = ");
     String iid = sc.nextLine();
     var inst = new BigtableController(pid, iid);
     int cmd, userId, itemId, K;

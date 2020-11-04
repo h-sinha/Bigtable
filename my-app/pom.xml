@@ -39,6 +39,7 @@
           <configuration>
             <mainClass>com.bigtable.App</mainClass>
             <cleanupDaemonThreads>false</cleanupDaemonThreads>
+            <logger name="org.apache.catalina.core" level="OFF" />
           </configuration>
         </plugin>
       </plugins>
