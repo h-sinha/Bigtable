@@ -181,10 +181,10 @@ public class BigtableController {
     return ans;
   }
 
-  public BigtableController() {
+  public BigtableController(String projectId, String instanceId) {
     // change later based on submission format
-    this.projectId = "ds-hw-5";
-    this.instanceId = "in1234";
+    this.projectId = projectId;
+    this.instanceId = instanceId;
   }
 
   public void readCSV(String filepath) throws IOException {
