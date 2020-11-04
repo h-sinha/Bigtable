@@ -134,7 +134,7 @@ public class BigtableController {
       });
       for (Map.Entry mapElement : itemList.entrySet()) {
         int key = (int) mapElement.getKey();
-        String value = (String) mapElement.getValue();
+        int value = (int) mapElement.getValue();
         minHeap.add(new Pair(value, key));
         if (minHeap.size() > k) {
           minHeap.poll();
