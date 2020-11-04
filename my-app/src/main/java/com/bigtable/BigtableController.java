@@ -103,7 +103,7 @@ public class BigtableController {
   }
 
   public int[] top_interested(int itemId, int k) {
-    int[] ans = new int[K];
+    int[] ans = new int[k];
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
