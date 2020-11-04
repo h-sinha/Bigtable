@@ -56,23 +56,23 @@ public class BigtableController {
         System.out.println("No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(K, new Comparator<Pair>() {
+      PriorityQueue<Pair> maxHeap = new PriorityQueue<Pair>(K, new Comparator<Pair>() {
         public int compare(Pair n1, Pair n2) {
-          return n2.v1 - n1.v1;
+          return n1.v1 - n2.v1;
         }
       });
       int itemId, viewCount;
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
         viewCount = Bytes.toInt(cell.getValueArray());
-        minHeap.add(new Pair(viewCount, itemId));
-        if (minHeap.size() > K) {
-          minHeap.poll();
+        maxHeap.add(new Pair(viewCount, itemId));
+        if (maxHeap.size() > K) {
+          maxHeap.poll();
         }
       }
       int idx = 0;
       Pair pair;
-      while ((pair = minHeap.poll()) != null) {
+      while ((pair = maxHeap.poll()) != null) {
         ans[idx++] = pair.v2;
       }
     } catch (IOException e) {
