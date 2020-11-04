@@ -9,12 +9,13 @@ import org.apache.log4j.Logger;
 public class App {
   public static void main(String[] args) throws IOException {
     Logger.getRootLogger().setLevel(Level.OFF);
-    Scanner sc = new Scanner(System.in); // Create a Scanner object
+    Scanner sc = new Scanner(System.in);
     System.out.print("Enter project ID for bigtable = ");
     String pid = sc.nextLine();
     System.out.print("Enter instance ID for bigtable = ");
     String iid = sc.nextLine();
     var inst = new BigtableController(pid, iid);
+    System.out.println(pid + iid);
     int cmd, userId, itemId, K;
     String path;
     while (true) {
@@ -28,6 +29,7 @@ public class App {
           Scanner sc1 = new Scanner(System.in);
           path = sc1.nextLine();
           inst.readCSV(path);
+          System.out.println(path);
           break;
         case 2:
           System.out.print("Enter user ID = ");
