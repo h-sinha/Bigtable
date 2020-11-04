@@ -118,11 +118,13 @@ public class BigtableController {
           int it, viewCount;
           for (Cell cell : raw) {
             it = Bytes.toInt(cell.getQualifierArray());
-            Integer tmp = itemList.get(it);
-            if (tmp == null) {
-              itemList.put(it, 1);
-            } else {
-              itemList.put(it, tmp + 1);
+            if (it != itemId) {
+              Integer tmp = itemList.get(it);
+              if (tmp == null) {
+                itemList.put(it, 1);
+              } else {
+                itemList.put(it, tmp + 1);
+              }
             }
           }
         }
