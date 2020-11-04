@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -48,22 +49,17 @@ public class BigtableController {
     int[] ans = new int[K];
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-      Result getResult =
-          table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
+      Result getResult = table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
       Cell[] raw = getResult.rawCells();
       if (raw == null) {
-        System.out.println(
-            "No data was returned. If you recently ran the import job, try again in a minute.");
+        System.out.println("No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> maxHeap =
-          new PriorityQueue<Pair>(
-              K,
-              new Comparator<Pair>() {
-                public int compare(Pair n1, Pair n2) {
-                  return n1.v1 - n2.v1;
-                }
-              });
+      PriorityQueue<Pair> maxHeap = new PriorityQueue<Pair>(K, new Comparator<Pair>() {
+        public int compare(Pair n1, Pair n2) {
+          return n1.v1 - n2.v1;
+        }
+      });
       int itemId, viewCount;
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
@@ -91,13 +87,62 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      SingleColumnValueFilter filter =
-          new SingleColumnValueFilter(
-              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId),
+          CompareOp.NOT_EQUAL, Bytes.toBytes(0));
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans++;
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return ans;
+  }
+
+  public int[] top_interested(int itemId, int k) {
+    int[] ans = new int[K];
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Scan scan = new Scan();
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      ResultScanner scanner = table.getScanner(scan);
+      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+        int userID = Bytes.toInt(result.getRow());
+        Result getResult = table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
+        Cell[] raw = getResult.rawCells();
+        Map<Integer, Integer> itemList = new HashMap<>();
+        if (raw != null) {
+          int it, viewCount;
+          for (Cell cell : raw) {
+            it = Bytes.toInt(cell.getQualifierArray());
+            Integer tmp = itemList.get(it);
+            if (tmp == null) {
+              itemList.put(it, 1);
+            } else {
+              itemList.put(it, tmp + 1);
+            }
+          }
+        }
+      }
+      PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(k, new Comparator<Pair>() {
+        public int compare(Pair n1, Pair n2) {
+          return n2.v1 - n1.v1;
+        }
+      });
+      for (Map.Entry mapElement : itemList.entrySet()) {
+        int key = (int) mapElement.getKey();
+        String value = (String) mapElement.getValue();
+        minHeap.add(new Pair(value, key));
+        if (minHeap.size() > k) {
+          minHeap.poll();
+        }
+      }
+      int idx = 0;
+      Pair pair;
+      while ((pair = minHeap.poll()) != null) {
+        ans[idx++] = pair.v2;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -176,10 +221,14 @@ public class BigtableController {
           scanner.useDelimiter(",");
           while (scanner.hasNext()) {
             String data = scanner.next();
-            if (index == 0) userId = Integer.parseInt(data);
-            else if (index == 1) itemId = Integer.parseInt(data);
-            else if (index == 2) viewCount = Integer.parseInt(data);
-            else System.out.println("invalid data::" + data);
+            if (index == 0)
+              userId = Integer.parseInt(data);
+            else if (index == 1)
+              itemId = Integer.parseInt(data);
+            else if (index == 2)
+              viewCount = Integer.parseInt(data);
+            else
+              System.out.println("invalid data::" + data);
             index++;
           }
           index = 0;
