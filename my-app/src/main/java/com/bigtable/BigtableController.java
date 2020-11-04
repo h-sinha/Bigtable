@@ -131,7 +131,7 @@ public class BigtableController {
       }
       PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(k, new Comparator<Pair>() {
         public int compare(Pair n1, Pair n2) {
-          return n2.v1 - n1.v1;
+          return n1.v1 - n2.v1;
         }
       });
       for (Map.Entry mapElement : itemList.entrySet()) {
