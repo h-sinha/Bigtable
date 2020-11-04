@@ -20,18 +20,22 @@ public class App {
     while (true) {
       System.out.print(
           "1.readCSV\n2.top\n3.interested\n4.top_interested\n5.view_count\n6.popular\n7.Quit\nEnter command number = ");
-      cmd = sc.nextInt();
+      Scanner cmds = new Scanner(System.in);
+      cmd = cmds.nextInt();
       switch (cmd) {
         case 1:
           System.out.print("Enter path to csv file = ");
-          path = sc.nextLine();
+          Scanner sc1 = new Scanner(System.in);
+          path = sc1.nextLine();
           inst.readCSV(path);
           break;
         case 2:
           System.out.print("Enter user ID = ");
-          userId = sc.nextInt();
+          Scanner sc2 = new Scanner(System.in);
+          userId = sc2.nextInt();
           System.out.print("Enter K = ");
-          K = sc.nextInt();
+          Scanner sc3 = new Scanner(System.in);
+          K = sc3.nextInt();
           var res = inst.top(userId, K);
           System.out.format("Top K items for userId:%d - \n", userId);
           for (var x : res) System.out.print(x + " ");
@@ -39,15 +43,18 @@ public class App {
           break;
         case 3:
           System.out.print("Enter item ID = ");
-          itemId = sc.nextInt();
+          Scanner sc4 = new Scanner(System.in);
+          itemId = sc4.nextInt();
           System.out.format(
               "Number of users interested in item %d = %d\n", itemId, inst.interested(1));
           break;
         case 4:
           System.out.print("Enter item ID = ");
-          itemId = sc.nextInt();
+          Scanner sc5 = new Scanner(System.in);
+          itemId = sc5.nextInt();
           System.out.print("Enter K = ");
-          K = sc.nextInt();
+          Scanner sc6 = new Scanner(System.in);
+          K = sc6.nextInt();
           System.out.format("Top interested items for itemId:%d - \n", itemId);
           var res2 = inst.top_interested(itemId, K);
           for (var x : res2) System.out.print(x + " ");
@@ -55,7 +62,8 @@ public class App {
           break;
         case 5:
           System.out.print("Enter item ID = ");
-          itemId = sc.nextInt();
+          Scanner sc7 = new Scanner(System.in);
+          itemId = sc7.nextInt();
           System.out.format("Viewcount of item %d = %d\n", itemId, inst.view_count(1));
           break;
         case 6:
