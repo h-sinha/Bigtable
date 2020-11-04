@@ -109,11 +109,11 @@ public class BigtableController {
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       ResultScanner scanner = table.getScanner(scan);
+      Map<Integer, Integer> itemList = new HashMap<>();
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         int userID = Bytes.toInt(result.getRow());
         Result getResult = table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
         Cell[] raw = getResult.rawCells();
-        Map<Integer, Integer> itemList = new HashMap<>();
         if (raw != null) {
           int it, viewCount;
           for (Cell cell : raw) {
