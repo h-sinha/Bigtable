@@ -26,7 +26,16 @@
       <artifactId>bigtable-hbase-1.x</artifactId>
       <version>1.9.0</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.5</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -39,7 +48,6 @@
           <configuration>
             <mainClass>com.bigtable.App</mainClass>
             <cleanupDaemonThreads>false</cleanupDaemonThreads>
-            <logger name="org.apache.catalina.core" level="OFF" />
           </configuration>
         </plugin>
       </plugins>
