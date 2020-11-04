@@ -2,10 +2,13 @@ package com.bigtable;
 
 import java.io.IOException;
 import java.util.Scanner;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /** Hello world! */
 public class App {
   public static void main(String[] args) throws IOException {
+    Logger.getRootLogger().setLevel(Level.OFF);
     Scanner sc = new Scanner(System.in); // Create a Scanner object
     System.out.println("Enter project ID for bigtable");
     String pid = sc.nextLine();
@@ -14,7 +17,7 @@ public class App {
     var inst = new BigtableController(pid, iid);
     int cmd, userId, itemId, K;
     String path;
-    while (1) {
+    while (true) {
       System.out.print(
           "1.readCSV\n2.top\n3.interested\n4.top_interested\n5.view_count\n6.popular\n7.Quit\nEnter command number = ");
       cmd = sc.nextInt();
@@ -64,18 +67,5 @@ public class App {
           System.out.println("Enter correct command number.");
       }
     }
-    inst.readCSV("data.csv");
-    System.out.println("Viewcount of item 1 = " + inst.view_count(1));
-    System.out.println("Number of users interested in item 1 = " + inst.interested(1));
-    System.out.println("Most popular item in DB = " + inst.popular());
-    System.out.print("Top K iterms for userId:1 - ");
-    var res = inst.top(1, 2);
-    for (var x : res) System.out.print(x + " ");
-    System.out.println("");
-    System.out.print("Top K interested items for itemId:2 - ");
-    var res2 = inst.top_interested(3, 2);
-    for (var x : res2) System.out.print(x + " ");
-    System.out.println("");
-    System.exit(0);
   }
 }
