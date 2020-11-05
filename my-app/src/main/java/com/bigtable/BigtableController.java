@@ -79,6 +79,7 @@ public class BigtableController {
       Pair pair;
       while ((pair = maxHeap.poll()) != null) {
         ans[idx++] = pair.v2;
+        System.out.println(pair.v1 + " - " + pair.v2);
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
