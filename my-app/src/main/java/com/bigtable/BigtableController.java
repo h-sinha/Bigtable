@@ -102,7 +102,6 @@ public class BigtableController {
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans++;
-        System.out.println(Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId))));
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -187,7 +186,7 @@ public class BigtableController {
   public int popular() {
     int ans = 0, maxView = -1;
     for (var i : this.columnId) {
-      int curView = view_count(i);
+      int curView = interested(i);
       if (curView > maxView) {
         maxView = curView;
         ans = i;
