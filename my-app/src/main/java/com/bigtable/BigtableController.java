@@ -93,13 +93,13 @@ public class BigtableController {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-//      Scan scan = new Scan();
-//      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-//      SingleColumnValueFilter filter =
-//          new SingleColumnValueFilter(
-//              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
-//      scan.setFilter(filter);
-      ResultScanner scanner = table.getScanner(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      Scan scan = new Scan();
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      SingleColumnValueFilter filter =
+          new SingleColumnValueFilter(
+              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      scan.setFilter(filter);
+      ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans++;
         System.out.println(Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId))));

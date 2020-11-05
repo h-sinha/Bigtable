@@ -46,7 +46,7 @@ public class App {
           Scanner sc4 = new Scanner(System.in);
           itemId = sc4.nextInt();
           System.out.format(
-              "Number of users interested in item %d = %d\n", itemId, inst.interested(1));
+              "Number of users interested in item %d = %d\n", itemId, inst.interested(itemId));
           break;
         case 4:
           System.out.print("Enter item ID = ");
@@ -64,7 +64,7 @@ public class App {
           System.out.print("Enter item ID = ");
           Scanner sc7 = new Scanner(System.in);
           itemId = sc7.nextInt();
-          System.out.format("Viewcount of item %d = %d\n", itemId, inst.view_count(1));
+          System.out.format("Viewcount of item %d = %d\n", itemId, inst.view_count(itemId));
           break;
         case 6:
           System.out.println("Most popular item in DB = " + inst.popular());
