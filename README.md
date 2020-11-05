@@ -60,3 +60,35 @@ This project communicates with Cloud Bigtable through the Cloud Bigtable HBase c
 </ol>
 
 ## How to use?
+* Clone/Download this repository
+* Run following commands
+``` 
+cd Bigtable
+mvn package
+mvn exec:java
+```
+* Interaction -
+
+   * You'll see this after running the commands mentioned above.
+   ```
+   Enter project ID for bigtable = ****
+   Enter instance ID for bigtable = ****
+   ```
+   Enter project ID and instance ID corresponding to the instance where bigtable should be created.
+   * After this the command prompt would display the list of functions supported
+   ```
+   1.readCSV
+   2.top
+   3.interested
+   4.top_interested
+   5.view_count
+   6.popular
+   7.Quit
+   Enter command number = 
+   ```
+   Example - For readCSV enter 1. The program would then ask for the path to csv file(full path or path relative to Bigtable folder).
+   ```
+   Enter command number = 1
+   Enter path to csv file = data.csv
+   ```
+   Similarly this can be used for all other functions.
