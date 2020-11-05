@@ -128,23 +128,22 @@ public class BigtableController {
           int it, viewCount;
           for (Cell cell : raw) {
             it = Bytes.toInt(cell.getQualifierArray());
-            Integer tmp = itemList.get(it);
-            if (tmp == null) {
-              itemList.put(it, 1);
-            } else {
-              itemList.put(it, tmp + 1);
+            if (it != itemId) {
+              Integer tmp = itemList.get(it);
+              if (tmp == null) {
+                itemList.put(it, 1);
+              } else {
+                itemList.put(it, tmp + 1);
+              }
             }
           }
         }
       }
-      PriorityQueue<Pair> minHeap =
-          new PriorityQueue<Pair>(
-              k,
-              new Comparator<Pair>() {
-                public int compare(Pair n1, Pair n2) {
-                  return n2.v1 - n1.v1;
-                }
-              });
+      PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(k, new Comparator<Pair>() {
+        public int compare(Pair n1, Pair n2) {
+          return n1.v1 - n2.v1;
+        }
+      });
       for (Map.Entry mapElement : itemList.entrySet()) {
         int key = (int) mapElement.getKey();
         int value = (int) mapElement.getValue();
