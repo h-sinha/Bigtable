@@ -79,6 +79,7 @@ public class BigtableController {
       Pair pair;
       while ((pair = minHeap.poll()) != null) {
         ans[K - idx - 1] = pair.v2;
+        idx++;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -155,6 +156,7 @@ public class BigtableController {
       Pair pair;
       while ((pair = minHeap.poll()) != null) {
         ans[k - idx - 1] = pair.v2;
+        idx++;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
