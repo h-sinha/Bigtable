@@ -102,7 +102,7 @@ public class BigtableController {
     return ans;
   }
 
-  public int[] top_interested(int itemId, int k) {
+  public int[] top_interested2(int itemId, int k) {
     int[] ans = new int[k];
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
@@ -146,6 +146,28 @@ public class BigtableController {
       Pair pair;
       while ((pair = minHeap.poll()) != null) {
         ans[idx++] = pair.v2;
+      }
+    } catch (IOException e) {
+      System.err.println("Exception while running program: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return ans;
+  }
+
+  public void top_interested(int itemId, int k) {
+    try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
+      Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+      Scan scan = new Scan();
+      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+      ResultScanner scanner = table.getScanner(scan);
+      Map<Integer, Integer> itemList = new HashMap<>();
+      for (Result result = scanner.next(); result != null; result = scanner.next()) {
+        int userID = Bytes.toInt(result.getRow());
+        System.out.println("User: " + userID + "\'s Interested Items:");
+        for (int x : top(userID, k)) {
+          System.out.print(x + " ");
+        }
+        System.out.println("");
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
