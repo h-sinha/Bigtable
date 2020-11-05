@@ -28,6 +28,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.COL;
 
 public class BigtableController {
   String projectId, instanceId;
@@ -92,15 +93,16 @@ public class BigtableController {
     int ans = 0;
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-      Scan scan = new Scan();
-      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      SingleColumnValueFilter filter =
-          new SingleColumnValueFilter(
-              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
-      scan.setFilter(filter);
-      ResultScanner scanner = table.getScanner(scan);
+//      Scan scan = new Scan();
+//      scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
+//      SingleColumnValueFilter filter =
+//          new SingleColumnValueFilter(
+//              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+//      scan.setFilter(filter);
+      ResultScanner scanner = table.getScanner(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         ans++;
+        System.out.println(Bytes.toInt(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId))));
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -223,7 +225,7 @@ public class BigtableController {
         this.columnId = new HashSet<Integer>();
 
         // csv read
-        BufferedReader reader = new BufferedReader(new FileReader("data.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader(filepath));
         String line = null;
         Scanner scanner = null;
         int index = 0;
