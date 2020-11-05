@@ -57,7 +57,6 @@ public class App {
           K = sc6.nextInt();
           System.out.format("Top interested items for itemId:%d - ", itemId);
           inst.top_interested(itemId, K);
-          System.out.println("");
           break;
         case 5:
           System.out.print("Enter item ID = ");

@@ -163,10 +163,9 @@ public class BigtableController {
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
       ResultScanner scanner = table.getScanner(scan);
-      Map<Integer, Integer> itemList = new HashMap<>();
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         int userID = Bytes.toInt(result.getRow());
-        System.out.println("User: " + userID + "\'s Interested Items:");
+        System.out.print("User: " + userID + "\'s Interested Items:");
         for (int x : top(userID, k)) {
           System.out.print(x + " ");
         }
