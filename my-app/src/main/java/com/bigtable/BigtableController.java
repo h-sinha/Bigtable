@@ -51,22 +51,17 @@ public class BigtableController {
     int[] ans = new int[K];
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
-      Result getResult =
-          table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
+      Result getResult = table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
       Cell[] raw = getResult.rawCells();
       if (raw == null) {
-        System.out.println(
-            "No data was returned. If you recently ran the import job, try again in a minute.");
+        System.out.println("No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> minHeap =
-          new PriorityQueue<Pair>(
-              K,
-              new Comparator<Pair>() {
-                public int compare(Pair n1, Pair n2) {
-                  return n1.v1 - n2.v1;
-                }
-              });
+      PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(K, new Comparator<Pair>() {
+        public int compare(Pair n1, Pair n2) {
+          return n1.v1 - n2.v1;
+        }
+      });
       int itemId, viewCount;
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
@@ -95,9 +90,8 @@ public class BigtableController {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();
       scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId));
-      SingleColumnValueFilter filter =
-          new SingleColumnValueFilter(
-              COLUMN_FAMILY_NAME, Bytes.toBytes(itemId), CompareOp.NOT_EQUAL, Bytes.toBytes(0));
+      SingleColumnValueFilter filter = new SingleColumnValueFilter(COLUMN_FAMILY_NAME, Bytes.toBytes(itemId),
+          CompareOp.NOT_EQUAL, Bytes.toBytes(0));
       scan.setFilter(filter);
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
@@ -120,9 +114,7 @@ public class BigtableController {
       Map<Integer, Integer> itemList = new HashMap<>();
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         int userID = Bytes.toInt(result.getRow());
-        Result getResult =
-            table.get(
-                new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
+        Result getResult = table.get(new Get(Bytes.toBytes(userID)).setMaxVersions().addFamily(COLUMN_FAMILY_NAME));
         Cell[] raw = getResult.rawCells();
         if (raw != null) {
           int it, viewCount;
@@ -139,14 +131,11 @@ public class BigtableController {
           }
         }
       }
-      PriorityQueue<Pair> minHeap =
-          new PriorityQueue<Pair>(
-              k,
-              new Comparator<Pair>() {
-                public int compare(Pair n1, Pair n2) {
-                  return n1.v1 - n2.v1;
-                }
-              });
+      PriorityQueue<Pair> minHeap = new PriorityQueue<Pair>(k, new Comparator<Pair>() {
+        public int compare(Pair n1, Pair n2) {
+          return n1.v1 - n2.v1;
+        }
+      });
       for (Map.Entry mapElement : itemList.entrySet()) {
         int key = (int) mapElement.getKey();
         int value = (int) mapElement.getValue();
@@ -187,7 +176,6 @@ public class BigtableController {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
     }
-    return ans;
   }
 
   public int view_count(int itemId) {
@@ -260,10 +248,14 @@ public class BigtableController {
           scanner.useDelimiter(",");
           while (scanner.hasNext()) {
             String data = scanner.next();
-            if (index == 0) userId = Integer.parseInt(data);
-            else if (index == 1) itemId = Integer.parseInt(data);
-            else if (index == 2) viewCount = Integer.parseInt(data);
-            else System.out.println("invalid data::" + data);
+            if (index == 0)
+              userId = Integer.parseInt(data);
+            else if (index == 1)
+              itemId = Integer.parseInt(data);
+            else if (index == 2)
+              viewCount = Integer.parseInt(data);
+            else
+              System.out.println("invalid data::" + data);
             index++;
           }
           index = 0;
