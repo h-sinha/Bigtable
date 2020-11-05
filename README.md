@@ -63,7 +63,7 @@ This project communicates with Cloud Bigtable through the Cloud Bigtable HBase c
 * Clone/Download this repository
 * Run following commands
 ``` 
-cd Bigtable
+cd Bigtable/my-app
 mvn package
 mvn exec:java
 ```
