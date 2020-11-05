@@ -157,7 +157,7 @@ public class BigtableController {
     return ans;
   }
 
-  public void top_interested(int itemId, int k) {
+  public void top_interested2(int itemId, int k) {
     try (Connection connection = BigtableConfiguration.connect(projectId, instanceId)) {
       Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
       Scan scan = new Scan();

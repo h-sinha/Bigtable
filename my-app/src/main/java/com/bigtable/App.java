@@ -38,15 +38,15 @@ public class App {
           K = sc3.nextInt();
           var res = inst.top(userId, K);
           System.out.format("Top K items for userId:%d - ", userId);
-          for (var x : res) System.out.print(x + " ");
+          for (var x : res)
+            System.out.print(x + " ");
           System.out.println("");
           break;
         case 3:
           System.out.print("Enter item ID = ");
           Scanner sc4 = new Scanner(System.in);
           itemId = sc4.nextInt();
-          System.out.format(
-              "Number of users interested in item %d = %d\n", itemId, inst.interested(itemId));
+          System.out.format("Number of users interested in item %d = %d\n", itemId, inst.interested(itemId));
           break;
         case 4:
           System.out.print("Enter item ID = ");
@@ -56,8 +56,7 @@ public class App {
           Scanner sc6 = new Scanner(System.in);
           K = sc6.nextInt();
           System.out.format("Top interested items for itemId:%d - ", itemId);
-          var res2 = inst.top_interested(itemId, K);
-          for (var x : res2) System.out.print(x + " ");
+          inst.top_interested(itemId, K);
           System.out.println("");
           break;
         case 5:
@@ -74,8 +73,7 @@ public class App {
         default:
           System.out.println("Enter correct command number.");
       }
-      System.out.println(
-          "-----------------------------------------------------------------------------");
+      System.out.println("-----------------------------------------------------------------------------");
     }
   }
 }
