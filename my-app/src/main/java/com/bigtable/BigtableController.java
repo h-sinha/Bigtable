@@ -165,7 +165,7 @@ public class BigtableController {
       ResultScanner scanner = table.getScanner(scan);
       for (Result result = scanner.next(); result != null; result = scanner.next()) {
         int userID = Bytes.toInt(result.getRow());
-        System.out.print("User: " + userID + "\'s Interested Items:");
+        System.out.print("User: " + userID + "\'s interested Items:");
         for (int x : top(userID, k)) {
           System.out.print(x + " ");
         }

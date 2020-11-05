@@ -55,7 +55,7 @@ public class App {
           System.out.print("Enter K = ");
           Scanner sc6 = new Scanner(System.in);
           K = sc6.nextInt();
-          System.out.format("Top interested items for itemId:%d - ", itemId);
+          System.out.format("Top interested items for itemId:%d - \n", itemId);
           inst.top_interested(itemId, K);
           break;
         case 5:
