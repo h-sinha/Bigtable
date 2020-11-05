@@ -1,4 +1,5 @@
-com/bigtable/CSVHandler.class
-com/bigtable/Record.class
+com/bigtable/BigtableController$1.class
 com/bigtable/BigtableController.class
+com/bigtable/BigtableController$Pair.class
+com/bigtable/BigtableController$2.class
 com/bigtable/App.class
