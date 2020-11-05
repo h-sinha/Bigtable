@@ -58,7 +58,7 @@ public class BigtableController {
             "No data was returned. If you recently ran the import job, try again in a minute.");
         return new int[0];
       }
-      PriorityQueue<Pair> maxHeap =
+      PriorityQueue<Pair> minHeap =
           new PriorityQueue<Pair>(
               K,
               new Comparator<Pair>() {
@@ -70,16 +70,15 @@ public class BigtableController {
       for (Cell cell : raw) {
         itemId = Bytes.toInt(cell.getQualifierArray());
         viewCount = Bytes.toInt(cell.getValueArray());
-        maxHeap.add(new Pair(viewCount, itemId));
-        if (maxHeap.size() > K) {
-          maxHeap.poll();
+        minHeap.add(new Pair(viewCount, itemId));
+        if (minHeap.size() > K) {
+          minHeap.poll();
         }
       }
       int idx = 0;
       Pair pair;
-      while ((pair = maxHeap.poll()) != null) {
-        ans[idx++] = pair.v2;
-        System.out.println(pair.v1 + " - " + pair.v2);
+      while ((pair = minHeap.poll()) != null) {
+        ans[K - idx - 1] = pair.v2;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -155,7 +154,7 @@ public class BigtableController {
       int idx = 0;
       Pair pair;
       while ((pair = minHeap.poll()) != null) {
-        ans[idx++] = pair.v2;
+        ans[k - idx - 1] = pair.v2;
       }
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
@@ -265,6 +264,7 @@ public class BigtableController {
     } catch (IOException e) {
       System.err.println("Exception while running program: " + e.getMessage());
       e.printStackTrace();
+      System.exit(0);
     }
   }
 }

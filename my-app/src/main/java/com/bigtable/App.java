@@ -73,6 +73,8 @@ public class App {
           System.exit(0);
         default:
           System.out.println("Enter correct command number.");
+          System.out.println(
+              "-----------------------------------------------------------------------------");
       }
     }
   }
